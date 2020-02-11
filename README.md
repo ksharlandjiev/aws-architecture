@@ -5,7 +5,7 @@ AWS architecture and docs for various projects and challenges.
 # Concurrency issue on an e-commerce website
 On an e-commerce website, there is a product and 50 of them are available. You have to design a system - DB(relational) and application design including APIs (noo need to document the spec) so that only the first 50 people who add to the basket and buy it get the product. Imagine there are 50,000 concurrent users looking at the same product and trying to buy it. Once an item is added to the basket, it is locked down to that user. The user then has 10 mins to complete the purchase. After 10 mins, if not purchased, it will be made available to the next available user.
 
-Version 0
+Version 1
 ------
 The problem can be divided into two separate ones:
 1. A solution to execute as close to the customer and provide a lightning-fast response about availability.
@@ -38,11 +38,11 @@ Once this is completed, the same Lambda function will submit the order as a mess
 The reason and motivation to use SQS which may seem as an overkill is to solve database concurrency issue. The proposition is for the SQS lambda worker to save into the database both the timestamp of when the item was added into cart (taken from Redis) and the timestamp of the actual transaction (payment).
 FIFO (First-In-First-Out) queues are designed to enhance messaging between applications when the order of operations and events is critical, or where duplicates can't be tolerated, so they seems to be a natural choice to solve our problem.
 
-Here is a verison 0 of how our architecture may look like:
+Here is a verison 1 of how our architecture may look like:
  
-![AWS Architecture for flash deals and concurency database connections. Version 0](/img/concurrency.version0.svg "AWS Architecture for flash deals and concurency database connections. Version 0")
+![AWS Architecture for flash deals and concurency database connections. Version 1](/img/concurrency.version0.svg "AWS Architecture for flash deals and concurency database connections. Version 1")
 
-Version 1
+Version 2
 ------
 ### Taking the idea further
 THis looks like a complicated prototype of architecture, but we should always keep asking ourselves, what can we improve, and how can we minimize the costs of our solutions.
@@ -55,9 +55,9 @@ We potentially will need two Lamda@Edge functions - one for request and one for 
 
 Let's see how the new architecture will look like:
 
-![AWS Architecture for flash deals and concurency database connections. Version 1](/img/concurrency.version1.svg "AWS Architecture for flash deals and concurency database connections. Version 1")
+![AWS Architecture for flash deals and concurency database connections. Version 2](/img/concurrency.version1.svg "AWS Architecture for flash deals and concurency database connections. Version 2")
 
-Version 1
+Version 3
 ------
 ### Simplifying and optimizing.
 
@@ -76,4 +76,4 @@ I came up with something like this, which is my final solution for the day.
 
 In this architecture we have completely removed CloudFront and Lambda@Edge, sacrificing a little bit of time when the user requests the AddToCart action, for the sake of a simplified and cheaper solution.
 
-![Simplified AWS Architecture for flash deals and concurency database connections. Version 2](/img/concurrency.version2.svg "Simplified AWS Architecture for flash deals and concurency database connections. Version 2")
+![Simplified AWS Architecture for flash deals and concurency database connections. Version 3](/img/concurrency.version2.svg "Simplified AWS Architecture for flash deals and concurency database connections. Version 3")
